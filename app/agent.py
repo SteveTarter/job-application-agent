@@ -54,7 +54,8 @@ else:
 MODEL_NAME = "gemini-1.5-flash"
 
 # Load local skills dynamically
-SKILLS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "skills")
+WORKSPACE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SKILLS_DIR = os.path.join(WORKSPACE_DIR, ".agents", "skills")
 extract_skill = load_skill_from_dir(os.path.join(SKILLS_DIR, "extract-resume"))
 match_skill = load_skill_from_dir(os.path.join(SKILLS_DIR, "job-matching"))
 letter_skill = load_skill_from_dir(os.path.join(SKILLS_DIR, "cover-letter-generation"))
