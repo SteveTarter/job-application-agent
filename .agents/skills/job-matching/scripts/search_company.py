@@ -37,13 +37,7 @@ def search_company(company_name):
     if match:
         return match
 
-    # Default fallback context for unknown companies
-    return {
-        "name": company_name,
-        "industry": "Technology / Software",
-        "context": f"{company_name} is a software/technology company specializing in modern digital platforms and services. Their engineering teams focus on scalability, reliability, and developer efficiency.",
-        "recent_news": "Expanding their engineering capabilities and deploying cloud-native solutions.",
-    }
+    raise ValueError(f"Company '{company_name}' not found. Supported companies are: Block, Stripe, Confluent.")
 
 
 if __name__ == "__main__":

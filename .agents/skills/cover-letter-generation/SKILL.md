@@ -21,6 +21,7 @@ allowed-tools: ""
 
 ## Workflow
 1. Generate a tailored three-paragraph cover letter using candidate profile details and match results:
+   - **Header**: Start with the current date followed by a professional salutation (e.g. "Dear Hiring Manager,").
    - **Paragraph 1**: Lead with the company's product/mission and candidate interest. Explain *why* you are interested in their specific engineering challenges. Do NOT say "I am writing to apply..." or "I am passionate about...".
    - **Paragraph 2**: Cite specific technical evidence by name (e.g. Roadrunner project) and highlight concrete technologies and scale challenges.
    - **Paragraph 3**: Directly address any domain or skill gaps (e.g. lack of fintech background) honestly and reframe it (e.g., that distributed systems reliability is domain-agnostic).
