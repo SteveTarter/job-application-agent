@@ -1,86 +1,132 @@
 # job-application-agent
 
-Simple ReAct agent
-Agent generated with `agents-cli` version `0.5.1`
+A workflow-based agentic pipeline that parses multimodal resumes, analyzes job postings, scores candidate fit across five dimensions, and generates tailored cover letters.
+
+Built with Python and Google ADK 2.0 for the Kaggle AI Agents Hackathon (Concierge Agents track).
+
+---
+
+## Demo
+
+[INSERT DEMO GIF OR SCREENSHOT HERE]
+
+---
+
+## How It Works
+
+```
+User Input → ADK Workflow (Maintains AgentState)
+                    │
+                    ├── 1. Setup Node         → Validates CandidateProfile (via Multimodal PDF)
+                    ├── 2. Analysis Node      → Validates JobMatch & Search Grounding
+                    └── 3. Cover Letter Node  → Generates Letter & Iterative Refinement
+```
+
+One State Graph, Three Nodes, Deep Integrations:  
+
+Component               | Type     | Responsibility
+------------------------|----------|---------------
+`app/agent.py`          | Workflow | Edge routing · explicit phrase traversals · state management
+`setup_candidate`       | Node     | Multimodal PDF resume extraction · pypdf link parsing
+`analyze_job`           | Node     | URL fetching · Google Search Grounding · 5-dimension scoring
+`generate_cover_letter` | Node     | Letter generation · refinement loop · evidence auditing
+
+Tool / Helper           | Purpose
+------------------------|--------
+`load_web_page`         | ADK tool to fetch and clean job posting URLs
+`fetch_github_repos.py` | Runpy script to pull repo evidence for cover letter citations
+`google_search`         | Gemini grounding fallback for company context
+
+## Quickstart
+
+### Prerequisites
+
+* Python 3.11+
+* `uv package manager`
+* Google AI API key (or Google Cloud / Vertex AI credentials)
+
+### Setup
+
+```bash
+# Clone the repo
+git clone https://github.com/[USERNAME]/job-application-agent
+cd job-application-agent
+
+# Install dependencies using uv
+uv sync --frozen
+
+# Configure environment
+cp .env.example .env
+# Edit .env and add your GEMINI_API_KEY
+```
+
+### Run
+
+```bash
+# Launch the local development environment using agents-cli
+agents-cli playground
+```
+
+### Test
+
+```bash
+# Run unit and integration tests
+uv run pytest tests/unit tests/integration
+```
+
+---
 
 ## Project Structure
 
 ```
 job-application-agent/
-├── app/         # Core agent code
-│   ├── agent.py               # Main agent logic
-│   └── app_utils/             # App utilities and helpers
-├── tests/                     # Unit, integration, and load tests
-├── GEMINI.md                  # AI-assisted development guide
-└── pyproject.toml             # Project dependencies
+├── app/
+│   ├── agent.py         # ADK workflow and edge definitions
+│   ├── models.py        # Pydantic state and schema contracts
+│   ├── helpers.py       # Runpy execution for local skills
+│   └── nodes/           # Workflow nodes (setup, analysis, letter)
+├── .agents/skills/      # Prompt instructions for LLM tasks
+└── tests/               # Pytest integration and unit tests
 ```
-
-> 💡 **Tip:** Use [Gemini CLI](https://github.com/google-gemini/gemini-cli) for AI-assisted development - project context is pre-configured in `GEMINI.md`.
-
-## Requirements
-
-Before you begin, ensure you have:
-- **uv**: Python package manager (used for all dependency management in this project) - [Install](https://docs.astral.sh/uv/getting-started/installation/) ([add packages](https://docs.astral.sh/uv/concepts/dependencies/) with `uv add <package>`)
-- **agents-cli**: Agents CLI - Install with `uv tool install google-agents-cli`
-- **Google Cloud SDK**: For GCP services - [Install](https://cloud.google.com/sdk/docs/install)
-
-
-## Quick Start
-
-Install `agents-cli` and its skills if not already installed:
-
-```bash
-uvx google-agents-cli setup
-```
-
-Install required packages:
-
-```bash
-agents-cli install
-```
-
-Test the agent with a local web server:
-
-```bash
-agents-cli playground
-```
-
-You can also use features from the [ADK](https://adk.dev/) CLI with `uv run adk`.
-
-## Commands
-
-| Command              | Description                                                                                 |
-| -------------------- | ------------------------------------------------------------------------------------------- |
-| `agents-cli install` | Install dependencies using uv                                                         |
-| `agents-cli playground` | Launch local development environment                                                  |
-| `agents-cli lint`    | Run code quality checks                                                               |
-| `agents-cli eval`    | Evaluate agent behavior (generate, grade, analyze, and more — see `agents-cli eval --help`) |
-| `uv run pytest tests/unit tests/integration` | Run unit and integration tests                                                        |
-
-## 🛠️ Project Management
-
-| Command | What It Does |
-|---------|--------------|
-| `agents-cli scaffold enhance` | Add CI/CD pipelines and Terraform infrastructure |
-| `agents-cli infra cicd` | One-command setup of entire CI/CD pipeline + infrastructure |
-| `agents-cli scaffold upgrade` | Auto-upgrade to latest version while preserving customizations |
+See GEMINI.md for AI coding tool instructions and build conventions.
 
 ---
 
-## Development
+## Architecture Decisions
 
-Edit your agent logic in `app/agent.py` and test with `agents-cli playground` - it auto-reloads on save.
+**ADK Workflow Orchestration.** Instead of a rigid single-prompt agent, a directed graph natively manages the `AgentState.` It dynamically traverses between setup, analysis, and generation nodes based on deterministic phrases like `"update profile"` or `"job postings"`.  
+**Strict Pydantic Data Contracts.** Nodes never pass raw dictionaries. All outputs from LLM calls are rigorously validated using Pydantic models (`ExtractedProfile`, `ExtractedJobMatch`) to prevent LLM hallucinations and enforce strict schema adherence.  
 
-## Deployment
+**Multimodal PDF Parsing.** Instead of relying solely on text scrapers, the `setup_candidate` node uses `pypdf` to extract annotation hyperlinks, then passes the raw PDF bytes to Gemini for superior contextual extraction.  
 
-```bash
-gcloud config set project <your-project-id>
-agents-cli deploy
-```
+**Search Grounding Fallback.** The job analyzer uses the `google_search` tool natively as a fallback to dynamically research company background and news if local scripts fail.  
 
-To add CI/CD and Terraform, run `agents-cli scaffold enhance`.
-To set up your production infrastructure, run `agents-cli infra cicd`.
+**Session Isolation.** The state tracks a `job_index` parameter to prefix interrupt IDs. This isolates multi-job analysis sessions and prevents UI cache collisions when evaluating multiple roles.
 
-## Observability
+---
 
-Built-in telemetry exports to Cloud Trace, BigQuery, and Cloud Logging.
+## Environment Variables
+
+Variable                    | Required | Description
+----------------------------|----------|------------
+`GEMINI_API_KEY`            | Yes\*    | Google AI API key (\*If not using Vertex AI)
+`GOOGLE_GENAI_USE_VERTEXAI` | No       | Set to True to use Vertex AI application-default credentials
+`GOOGLE_CLOUD_PROJECT`      | No       | Target GCP project ID
+
+---
+
+## Evaluation Criteria
+
+Criterion | Where
+----------|------
+Multi-agent system (ADK) | `app/agent.py` and `app/nodes/` — State-driven Workflow Graph
+MCP tools / Integrations | `app/helpers.py` — `load_web_page`, `pypdf`, and Search Grounding
+Security features | `.env` pattern · strong Pydantic validation · no keys in code
+Deployability | Dockerfile and `pyproject.toml` included
+Agent skills / CLI | Defined in `agents-cli-manifest.yaml` and `GEMINI.md`
+
+---
+
+## License
+
+MIT
