@@ -76,7 +76,8 @@ Three primary integrations serve the pipeline:
 
 ## Implementation Highlights
 
-[INSERT ORCHESTRATOR ROUTING DIAGRAM SCREENSHOT HERE]
+[INSERT ORCHESTRATOR ROUTING DIAGRAM SCREENSHOT HERE]  
+
 The migration to an ADK Workflow architecture enables a clean state machine. If a user asks to analyze a job, the `entry_node` natively routes them to `setup_candidate` first if their profile isn't populated.  
 
 [INSERT COVER LETTER BEFORE/AFTER SCREENSHOT HERE]
@@ -87,7 +88,8 @@ The refinement loop demonstrates the conversational agent model perfectly. After
 
 ## Results
 
-[INSERT EXAMPLE COVER LETTER OUTPUT HERE — redact personal details as needed]
+[INSERT EXAMPLE COVER LETTER OUTPUT HERE — redact personal details as needed]  
+
 The system produces cover letters that:
 - Cite specific GitHub projects by name with technical claims.
 - Address gaps honestly using the fit scorer's strategic framing.
@@ -108,7 +110,7 @@ The system produces cover letters that:
 
 ## Repository and Demo
 
--   **GitHub:** [REPO URL]
+-   **GitHub:** https://github.com/SteveTarter/job-application-agent
 -   **Video:** [YOUTUBE URL]
 -   **Track:** Concierge Agents 
 
