@@ -1,16 +1,14 @@
 # Job Application Agent — Project Writeup
 
-> Target: under 2,500 words. Replace bracketed placeholders before submitting.
-
 ---
 
 ## Title
 
-**JobAgent: A Skill-Based Agentic Pipeline for Tailored Job Applications**
+**JobApplicationAgent: A Skill-Based Agentic Pipeline for Tailored Job Applications**
 
 ## Subtitle
 
-From job posting URL to evidence-backed cover letter in seconds, using ADK 2.0 Workflows, multimodal PDF processing, and a five-dimension fit scorer.
+From job posting text to evidence-backed cover letter PDF in seconds, using ADK 2.0 Workflows, multimodal PDF processing, and a five-dimension fit scorer.
 
 ---
 
@@ -38,7 +36,8 @@ Three properties of this problem make it a natural fit for an ADK 2.0 Workflow a
 
 ## Technical Architecture
 
-![AI Agent System Architecture](images/architecture_diagram.png)
+![AI Agent System Architecture](images/architecture_diagram.png "AI Agent System Architecture")  
+*AI Agent System Architecture*  
 
 The pipeline is centered around an ADK 2.0 `Workflow` graph (`root_agent`) managing the `AgentState`. The state flows through specialized nodes:  
 
@@ -54,7 +53,8 @@ The pipeline is centered around an ADK 2.0 `Workflow` graph (`root_agent`) manag
 
 ## The Split-Pane Frontend Workspace
 
-[INSERT FRONTEND WORKSPACE SCREENSHOT HERE]
+![Frontend Workspace](images/frontend_workspace_example.png "Frontend Workspace")  
+*Frontend Workspace*  
 
 To provide an interactive, premium user experience that matches the agentic backend, we built a custom web application using **Next.js (App Router)**, **Tailwind CSS**, and **shadcn/ui**. The frontend communicates with the FastAPI backend through a session proxy route using **Server-Sent Events (SSE)** for real-time thought-streaming and state tracking.
 
@@ -95,11 +95,16 @@ Three primary integrations serve the pipeline:
 
 ## Implementation Highlights
 
-[INSERT ORCHESTRATOR ROUTING DIAGRAM SCREENSHOT HERE]  
+![Orchestrator Routing Diagram](images/orchestrator_routing_diagram.png "Orchestrator Routing Diagram")  
+*Orchestrator Routing Diagram*  
 
 The migration to an ADK Workflow architecture enables a clean state machine. If a user asks to analyze a job, the `entry_node` natively routes them to `setup_candidate` first if their profile isn't populated.  
 
-[INSERT COVER LETTER BEFORE/AFTER SCREENSHOT HERE]
+![Cover Letter Before Edit](images/cover_letter_before_edit.png "Cover Letter Before Edit")  
+*Cover Letter Before Edit*  
+
+![Cover Letter After Edit](images/cover_letter_after_edit.png "Cover Letter After Edit")  
+*Cover Letter After Edit*
 
 The refinement loop demonstrates the conversational agent model perfectly. After the first draft, the user can provide adjustments. The workflow passes the user's instruction and the existing draft back into the loop, incrementing the `draft_count` and editing the existing text rather than regenerating from scratch.  
 
@@ -107,7 +112,8 @@ The refinement loop demonstrates the conversational agent model perfectly. After
 
 ## Results
 
-[INSERT EXAMPLE COVER LETTER OUTPUT HERE — redact personal details as needed]  
+![Example Cover Letter](images/cover_letter_example.png "Example Cover Letter")cover-letter-before-edit
+*Example Cover Letter*  
 
 The system produces cover letters that:
 - Cite specific GitHub projects by name with technical claims.
