@@ -1315,7 +1315,11 @@ export default function JobApplicationAgentDashboard() {
                         >
                           <TabsList className="bg-zinc-900 border border-zinc-800">
                             {Object.keys(draftHistory).map((ver) => (
-                              <TabsTrigger key={ver} value={ver} className="text-xs px-3">
+                              <TabsTrigger
+                                key={ver}
+                                value={ver}
+                                className="text-xs px-3 text-zinc-300 hover:text-zinc-100 data-[state=active]:bg-zinc-800 data-[state=active]:text-white transition-all"
+                              >
                                 Draft {ver}
                               </TabsTrigger>
                             ))}
