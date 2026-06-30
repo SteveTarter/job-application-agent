@@ -28,6 +28,16 @@ from app.models import CandidateProfile, JobMatch
 def split_letter_response(text: str) -> tuple[str, str]:
     if not text:
         return "", ""
+
+    # Ensure standard blank line spacing between date and salutation
+    import re
+    lines_list = text.split("\n")
+    if len(lines_list) >= 2:
+        first_line = lines_list[0].strip()
+        date_pattern = r"^(?:[A-Za-z]+\s+\d{1,2},\s+\d{4}|\d{4}-\d{2}-\d{2})\s*$"
+        if re.match(date_pattern, first_line) and lines_list[1].strip() != "":
+            text = lines_list[0] + "\n\n" + "\n".join(lines_list[1:])
+
     text_lower = text.lower()
     markers = [
         "**metadata:**",
