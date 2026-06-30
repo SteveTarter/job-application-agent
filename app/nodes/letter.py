@@ -59,15 +59,37 @@ def split_letter_response(text: str) -> tuple[str, str]:
         cover_letter = text[:split_idx].strip()
         metadata_and_suggestions = text[split_idx:].strip()
         
-        # Clean horizontal rule lines / separators from the end of the letter
+        # Clean horizontal rule lines, metadata headers, and suggestions headers from the end of the letter
+        metadata_headers = [
+            "**metadata:**",
+            "metadata:",
+            "metadata",
+            "word count:",
+            "word count",
+            "evidence audit:",
+            "evidence audit",
+            "draft number:",
+            "draft number",
+            "suggestions:",
+            "refinement suggestions",
+            "**refinement suggestions:**"
+        ]
+        
         while True:
             stripped = cover_letter.rstrip()
             lines = stripped.split("\n")
             if not lines:
                 break
             last_line = lines[-1].strip()
-            # Check if last line consists solely of divider chars or horizontal rules
-            if last_line and (all(c in "-*_" for c in last_line) or last_line.startswith("──")):
+            last_line_lower = last_line.lower()
+            
+            # 1. Check if last line is a divider
+            is_divider = last_line and (all(c in "-*_" for c in last_line) or last_line.startswith("──"))
+            
+            # 2. Check if last line starts with any metadata header
+            is_metadata_header = any(last_line_lower.startswith(h) for h in metadata_headers)
+            
+            if is_divider or is_metadata_header or not last_line:
                 cover_letter = "\n".join(lines[:-1]).strip()
             else:
                 break
