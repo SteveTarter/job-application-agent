@@ -443,11 +443,15 @@ export default function JobApplicationAgentDashboard() {
       const candidateName = agentState.profile?.name || "Candidate";
       const company = agentState.current_job?.company || "Company";
 
+      const cleanName = candidateName.replace(/\s+/g, "");
+      const cleanCompany = company.replace(/\s+/g, "");
+      const filename = `CoverLetter-${cleanName}-${cleanCompany}.pdf`;
+
       // Create a hidden form to perform a standard POST navigation download,
       // avoiding client-side blob URLs which Chrome blocks on HTTP origins.
       const form = document.createElement("form");
       form.method = "POST";
-      form.action = "/api/download_pdf";
+      form.action = `/api/download_pdf/${filename}`;
       form.target = "_blank";
       form.style.display = "none";
 
