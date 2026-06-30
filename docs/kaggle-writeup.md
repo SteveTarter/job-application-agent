@@ -52,6 +52,25 @@ The pipeline is centered around an ADK 2.0 `Workflow` graph (`root_agent`) manag
 
 ---
 
+## The Split-Pane Frontend Workspace
+
+[INSERT FRONTEND WORKSPACE SCREENSHOT HERE]
+
+To provide an interactive, premium user experience that matches the agentic backend, we built a custom web application using **Next.js (App Router)**, **Tailwind CSS**, and **shadcn/ui**. The frontend communicates with the FastAPI backend through a session proxy route using **Server-Sent Events (SSE)** for real-time thought-streaming and state tracking.
+
+Key frontend features include:
+
+- **Split-Pane Layout**: Built using `react-resizable-panels` to partition the workspace. The **Left Pane** manages the active chat and workflow interrupts, while the **Right Pane** displays rich dashboards.
+- **Dynamic Phase Dashboards**: The Right Pane updates dynamically according to the active workflow phase:
+  - *Phase 1 (Candidate Setup)*: Renders custom badge-based skills categorizations, educational cards, and work histories.
+  - *Phase 2 (Fit Score)*: Visualizes technical, domain, and experience alignment using a Recharts `RadarChart` along with colored score status bars.
+  - *Phase 3 (Cover Letter)*: Displays a visual document sheet rendering the clean cover letter text.
+- **Chrome-Safe PDF Preview**: We implemented a server-side route handler `/api/download_pdf` to bypass Chrome's block on client-side blob downloads. Clicking "Download PDF" opens the cover letter in a new tab using the native Chrome PDF viewer.
+- **Integrated Resume Uploader**: An interactive dotted file-dropzone appears automatically in the chat pane during Phase 1, allowing users to upload a PDF with a single click instead of typing local paths.
+- **Real-Time Streaming**: Renders the agent's internal thoughts and status updates dynamically as they stream from the ADK backend.
+
+---
+
 ## Tools & Integrations
 
 Three primary integrations serve the pipeline:
