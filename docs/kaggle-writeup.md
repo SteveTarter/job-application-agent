@@ -38,7 +38,7 @@ Three properties of this problem make it a natural fit for an ADK 2.0 Workflow a
 
 ## Technical Architecture
 
-[INSERT ARCHITECTURE DIAGRAM SCREENSHOT HERE]
+![AI Agent System Architecture](images/architecture_diagram.png)
 
 The pipeline is centered around an ADK 2.0 `Workflow` graph (`root_agent`) managing the `AgentState`. The state flows through specialized nodes:  
 
