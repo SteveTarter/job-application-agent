@@ -173,6 +173,13 @@ async def setup_candidate(ctx: Context, node_input: Any = None):
                 f"DO NOT invent, hallucinate, or boilerplate any information. If a field or list (like work experience or projects) is not present in the resume text, leave it empty (do not populate it with mock or placeholder data)."
             ]
 
+        yield Event(
+            content=types.Content(
+                role="model",
+                parts=[types.Part.from_text(text="Generating profile...\n")]
+            )
+        )
+
         # Call LLM with the extract-resume skill instructions
         response = client.models.generate_content(
             model=MODEL_NAME,
@@ -332,7 +339,23 @@ async def setup_candidate(ctx: Context, node_input: Any = None):
                     response_schema=ExtractedProfile,
                 ),
             )
-            updated = json.loads(response.text)
+            try:
+                updated = json.loads(response.text)
+            except Exception as e:
+                ctx.resume_inputs.pop(interrupt_id, None)
+                yield Event(
+                    output=True,
+                    actions=EventActions(route="loop_setup"),
+                    content=types.Content(
+                        role="model",
+                        parts=[
+                            types.Part.from_text(
+                                text="I encountered a temporary error while merging your corrections (JSON parsing failed). Please try describing the corrections again."
+                            )
+                        ]
+                    )
+                )
+                return
 
             # Preserve credentials/raw fields
             profile.name = updated.get("name", profile.name).strip().title()

@@ -82,6 +82,13 @@ async def analyze_job(ctx: Context, node_input: Any):
         else:
             job_desc_raw = job_text
 
+        yield Event(
+            content=types.Content(
+                role="model",
+                parts=[types.Part.from_text(text="Calculating Fit Score...\n")]
+            )
+        )
+
         # Extract company name and run search
         company_extraction = client.models.generate_content(
             model=MODEL_NAME,
@@ -217,7 +224,7 @@ async def analyze_job(ctx: Context, node_input: Any):
             f"{match_result.gap_narrative}"
         )
 
-        confirm_letter_msg = f"{dashboard}\n\nReady to generate your cover letter? Type 'cover letter' to proceed, type 'update profile' to update your profile, or describe any adjustments you'd like to make to this fit report:"
+        confirm_letter_msg = "Ready to generate your cover letter? Type 'cover letter' to proceed, type 'update profile' to update your profile, or describe any adjustments you'd like to make to this fit report:"
         yield Event(
             content=types.Content(
                 role="model", parts=[types.Part.from_text(text=confirm_letter_msg)]
@@ -236,7 +243,7 @@ async def analyze_job(ctx: Context, node_input: Any):
             actions=EventActions(route="route_letter"),
             content=types.Content(
                 role="model",
-                parts=[types.Part.from_text(text="Generating cover letter...")]
+                parts=[types.Part.from_text(text="Generating cover letter...\n")]
             )
         )
     elif "update profile" in letter_confirm:
@@ -258,6 +265,34 @@ async def analyze_job(ctx: Context, node_input: Any):
                 parts=[
                     types.Part.from_text(
                         text="Updating profile. Let's review the changes."
+                    )
+                ],
+            ),
+        )
+    elif "job postings" in letter_confirm:
+        # Reset current job and inputs for a new job posting analysis
+        ctx.state["current_job"] = None
+        ctx.state["cover_letter"] = ""
+        ctx.state["draft_count"] = 1
+        ctx.state["job_index"] = ctx.state.get("job_index", 0) + 1
+        ctx.state["job_input_count"] = 0
+        ctx.state["letter_confirm_count"] = 0
+        ctx.state["refinement_count"] = 0
+        
+        # Clear inputs related to job/letter confirmation
+        for k in list(ctx.resume_inputs.keys()):
+            if k.startswith("job_input_") or k.startswith("letter_confirm_"):
+                ctx.resume_inputs.pop(k, None)
+        ctx.resume_inputs.pop(letter_confirm_id, None)
+        
+        yield Event(
+            output=True,
+            actions=EventActions(route="loop_analyze"),
+            content=types.Content(
+                role="model",
+                parts=[
+                    types.Part.from_text(
+                        text="Let's analyze your new job posting."
                     )
                 ],
             ),

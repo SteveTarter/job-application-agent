@@ -127,6 +127,7 @@ class AgentState(BaseModel):
     profile: CandidateProfile = Field(default_factory=CandidateProfile)
     current_job: Optional[JobMatch] = None
     cover_letter: str = ""
+    metadata: str = ""
     draft_count: int = 1
     job_input_raw: str = ""
     profile_confirm_count: int = 0

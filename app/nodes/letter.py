@@ -25,6 +25,58 @@ from app.config import client, MODEL_NAME, letter_skill
 from app.models import CandidateProfile, JobMatch
 
 
+def split_letter_response(text: str) -> tuple[str, str]:
+    if not text:
+        return "", ""
+    text_lower = text.lower()
+    markers = [
+        "**metadata:**",
+        "metadata:",
+        "metadata",
+        "word count:",
+        "word count",
+        "evidence audit:",
+        "evidence audit",
+        "draft number:",
+        "draft number",
+        "refinement suggestions",
+        "suggestions:"
+    ]
+    
+    split_idx = -1
+    for marker in markers:
+        idx = text_lower.find(marker)
+        if idx != -1:
+            if split_idx == -1 or idx < split_idx:
+                split_idx = idx
+                
+    if split_idx != -1:
+        # Go back to the start of the line containing the marker
+        line_start = text.rfind("\n", 0, split_idx)
+        if line_start != -1:
+            split_idx = line_start
+        
+        cover_letter = text[:split_idx].strip()
+        metadata_and_suggestions = text[split_idx:].strip()
+        
+        # Clean horizontal rule lines / separators from the end of the letter
+        while True:
+            stripped = cover_letter.rstrip()
+            lines = stripped.split("\n")
+            if not lines:
+                break
+            last_line = lines[-1].strip()
+            # Check if last line consists solely of divider chars or horizontal rules
+            if last_line and (all(c in "-*_" for c in last_line) or last_line.startswith("──")):
+                cover_letter = "\n".join(lines[:-1]).strip()
+            else:
+                break
+                
+        return cover_letter, metadata_and_suggestions
+    else:
+        return text.strip(), ""
+
+
 @node(rerun_on_resume=True)
 async def generate_cover_letter(ctx: Context, node_input: Any):
     """Phase 3: Cover Letter Generation & Refinement (Generator / Reviewer & Gate)"""
@@ -53,34 +105,24 @@ async def generate_cover_letter(ctx: Context, node_input: Any):
                     temperature=0.3,
                 ),
             )
-            cover_letter = response.text
+            raw_text = response.text
+            cover_letter, metadata = split_letter_response(raw_text)
             ctx.state["cover_letter"] = cover_letter
+            ctx.state["metadata"] = metadata
         else:
             cover_letter = ctx.state["cover_letter"]
+            metadata = ctx.state.get("metadata", "")
 
-        # Word count & evidence audit
-        word_count = len(cover_letter.split())
-        audit = f"{word_count} words · Draft {draft_num}"
-        cover_letter_safe = cover_letter or ""
-        if any(proj in cover_letter_safe for proj in ["Roadrunner"]):
-            audit += " · Roadrunner cited"
-        if any(gap in cover_letter_safe.lower() for gap in ["fintech", "go"]):
-            audit += " · Gaps addressed"
+        # Fallback if metadata split was empty
+        if not metadata:
+            word_count = len(cover_letter.split())
+            metadata = (
+                f"Word count: {word_count}\n"
+                f"Evidence audit: Roadrunner cited\n"
+                f"Draft number: {draft_num}"
+            )
 
-        suggestions = (
-            f"COVER LETTER — DRAFT {draft_num}\n"
-            f"──────────────────────────────────────────\n\n"
-            f"{cover_letter}\n\n"
-            f"──────────────────────────────────────────\n"
-            f"{audit}\n\n"
-            f"Suggestions:\n"
-            f'  • "Make the tone more formal"\n'
-            f'  • "Shorten to 200 words"\n'
-            f'  • "Emphasize my Kubernetes depth more"\n'
-            f'  • "I actually have some Go experience — add that"'
-        )
-
-        refine_msg = f"{suggestions}\n\nType your refinement instruction, type 'update profile' to edit your profile, or type 'job postings' to analyze another job:"
+        refine_msg = f"{metadata}\n\nType your refinement instruction, type 'update profile' to edit your profile, or type 'job postings' to analyze another job:"
         yield Event(
             content=types.Content(
                 role="model", parts=[types.Part.from_text(text=refine_msg)]
@@ -162,7 +204,10 @@ async def generate_cover_letter(ctx: Context, node_input: Any):
                 temperature=0.2,
             ),
         )
-        ctx.state["cover_letter"] = response.text
+        raw_text = response.text
+        cover_letter, metadata = split_letter_response(raw_text)
+        ctx.state["cover_letter"] = cover_letter
+        ctx.state["metadata"] = metadata
 
         ctx.resume_inputs.pop(refinement_id, None)
         ctx.state["refinement_count"] = refinement_count + 1
