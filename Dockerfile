@@ -19,7 +19,7 @@ RUN pip install --no-cache-dir uv==0.8.13
 WORKDIR /code
 
 COPY ./pyproject.toml ./README.md ./uv.lock* ./
-
+COPY ./.agents ./.agents
 COPY ./app ./app
 
 RUN uv sync --frozen

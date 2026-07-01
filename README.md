@@ -39,33 +39,66 @@ Tool / Helper           | Purpose
 
 ## Quickstart
 
+You can run this application either using **Docker Compose** (recommended: zero-install, cross-platform) or by setting up the dependencies **locally**.
+
 ### Prerequisites
 
-* Python 3.11+
-* `uv package manager`
-* Google AI API key (or Google Cloud / Vertex AI credentials)
+* **Docker & Docker Compose** (For Docker method)
+* **Python 3.11+** & **Node.js 18+** (For Local method)
+* **`uv` package manager** (For Local method)
+* **Google AI API key** (or Google Cloud / Vertex AI credentials)
 
-### Setup
+### Environment Configuration
+
+Before running, copy the `.env.example` file to `.env` and fill in your Gemini/GCP credentials:
 
 ```bash
-# Clone the repo
-git clone https://github.com/[USERNAME]/job-application-agent
-cd job-application-agent
+cp .env.example .env
+# Edit .env and set GEMINI_API_KEY (or Vertex credentials)
+```
 
+---
+
+## Method 1: Running with Docker (Recommended)
+
+Docker Compose starts both the Python backend and the Next.js frontend, automatically mapping environment variables from `.env`.
+
+```bash
+# Build and run the containers
+docker compose up --build
+```
+
+* **Frontend**: Open [http://localhost:3000](http://localhost:3000)
+* **Backend API**: Running on [http://localhost:8000](http://localhost:8000)
+
+---
+
+## Method 2: Local Setup (Development)
+
+### Backend Setup & Run
+
+```bash
 # Install dependencies using uv
 uv sync --frozen
 
-# Configure environment
-cp .env.example .env
-# Edit .env and add your GEMINI_API_KEY
-```
-
-### Run
-
-```bash
-# Launch the local development environment using agents-cli
+# Start the backend agent server
 agents-cli playground
 ```
+
+### Frontend Setup & Run
+
+```bash
+# Navigate to the frontend directory
+cd frontend
+
+# Install Node.js dependencies
+npm install
+
+# Start the frontend development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Test
 
