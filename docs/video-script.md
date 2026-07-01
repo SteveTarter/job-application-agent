@@ -44,11 +44,11 @@ By separating the workflow into distinct nodes, we can deterministically route t
 
 ## Section 4: Live Demo — Single Job (2:00 – 3:30)
 
-[SCREEN: Terminal or chat interface running the agent]  
+[SCREEN: Terminal running 'docker compose up' then transitioning to the React web UI]  
 
-"Let me show it running. First, the agent asks for my resume. I'll upload a PDF.  
+"Let me show it running. The entire application—both the Python ADK backend and Next.js frontend—spins up in a single command using Docker Compose. Once it's ready, we open the web interface in the browser. First, the agent asks for my resume. I'll upload a PDF.  
 
-[SCREEN: Upload PDF]  
+[SCREEN: Upload PDF in web UI]  
 
 "The setup node uses pypdf to extract my GitHub links from the file's annotations, then passes the binary to Gemini to build a candidate profile. Now, I'll paste in a job posting for a Backend role."  
 
@@ -84,6 +84,6 @@ Behind the scenes, the agent's state tracks a job_index. This isolates each job 
 
 [SCREEN: GitHub repo README]  
 
-"The full code is at [REPO URL]. The README covers setup, architecture, and the ADK workflow design.  
+"The full code is at [REPO URL]. The README covers local setup, the multi-agent architecture, and how to run the entire stack with Docker Compose.
 
 Built for Kaggle's AI Agents hackathon. Thanks for watching."
