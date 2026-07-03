@@ -84,6 +84,6 @@ Behind the scenes, the agent's state tracks a job_index. This isolates each job 
 
 [SCREEN: GitHub repo README]  
 
-"The full code is at [REPO URL]. The README covers local setup, the multi-agent architecture, and how to run the entire stack with Docker Compose.
+"The full code is at https://github.com/SteveTarter/job-application-agent. The README covers local setup, the multi-agent architecture, and how to run the entire stack with Docker Compose.
 
 Built for Kaggle's AI Agents hackathon. Thanks for watching."

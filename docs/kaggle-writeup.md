@@ -112,7 +112,7 @@ The refinement loop demonstrates the conversational agent model perfectly. After
 
 ## Results
 
-![Example Cover Letter](images/cover_letter_example.png "Example Cover Letter")cover-letter-before-edit
+![Example Cover Letter](images/cover_letter_example.png "Example Cover Letter")  
 *Example Cover Letter*  
 
 The system produces cover letters that:

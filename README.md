@@ -8,7 +8,8 @@ Built with Python and Google ADK 2.0 for the Kaggle AI Agents Hackathon (Concier
 
 ## Demo
 
-![JobApplicationAgent Fit Score Dashboard](docs/images/demo_screenshot.png)
+![JobApplicationAgent Fit Score Dashboard](docs/images/demo_screenshot.png "JobApplicationAgent in action")  
+*JobApplicationAgent in action*
 
 ---
 

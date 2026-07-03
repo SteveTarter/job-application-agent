@@ -145,16 +145,20 @@ async def generate_cover_letter(ctx: Context, node_input: Any):
             cover_letter = ctx.state["cover_letter"]
             metadata = ctx.state.get("metadata", "")
 
-        # Fallback if metadata split was empty
-        if not metadata:
-            word_count = len(cover_letter.split())
-            metadata = (
-                f"Word count: {word_count}\n"
-                f"Evidence audit: Roadrunner cited\n"
-                f"Draft number: {draft_num}"
-            )
-
-        refine_msg = f"{metadata}\n\nType your refinement instruction, type 'update profile' to edit your profile, or type 'job postings' to analyze another job:"
+        refusal_msg = ctx.state.get("refusal_message")
+        if refusal_msg:
+            ctx.state["refusal_message"] = None
+            refine_msg = f"{refusal_msg}\n\nType your refinement instruction, type 'update profile' to edit your profile, or type 'job postings' to analyze another job:"
+        else:
+            # Fallback if metadata split was empty
+            if not metadata:
+                word_count = len(cover_letter.split())
+                metadata = (
+                    f"Word count: {word_count}\n"
+                    f"Evidence audit: Roadrunner cited\n"
+                    f"Draft number: {draft_num}"
+                )
+            refine_msg = f"{metadata}\n\nType your refinement instruction, type 'update profile' to edit your profile, or type 'job postings' to analyze another job:"
         yield Event(
             content=types.Content(
                 role="model", parts=[types.Part.from_text(text=refine_msg)]
@@ -231,15 +235,32 @@ async def generate_cover_letter(ctx: Context, node_input: Any):
             config=types.GenerateContentConfig(
                 system_instruction=(
                     f"Refine the cover letter based on the user suggestion. "
-                    f"Conform to the general rules:\n{letter_skill.instructions}"
+                    f"Conform to the general rules:\n{letter_skill.instructions}\n\n"
+                    f"CRITICAL: If the user suggestion is invalid, unreasonable, or cannot be applied (e.g., requesting visual styling/formatting like fonts/colors, or asking for something unrelated to a cover letter), you MUST refuse. "
+                    f"To refuse, start your response with [REFUSAL] followed by a polite explanation of why you cannot fulfill the request and what refinements you can do. Do NOT rewrite the cover letter and do NOT append any metadata/suggestions in this case."
                 ),
                 temperature=0.2,
             ),
         )
         raw_text = response.text
-        cover_letter, metadata = split_letter_response(raw_text)
-        ctx.state["cover_letter"] = cover_letter
-        ctx.state["metadata"] = metadata
+        raw_text_stripped = raw_text.strip()
+        
+        is_refusal = False
+        refusal_prefix = None
+        for prefix in ["[REFUSAL]", "REFUSAL:", "[refusal]", "refusal:"]:
+            if raw_text_stripped.lower().startswith(prefix.lower()):
+                is_refusal = True
+                refusal_prefix = prefix
+                break
+                
+        if is_refusal and refusal_prefix:
+            refusal_msg = raw_text_stripped[len(refusal_prefix):].strip()
+            ctx.state["draft_count"] = draft_num  # Restore draft count
+            ctx.state["refusal_message"] = refusal_msg
+        else:
+            cover_letter, metadata = split_letter_response(raw_text)
+            ctx.state["cover_letter"] = cover_letter
+            ctx.state["metadata"] = metadata
 
         ctx.resume_inputs.pop(refinement_id, None)
         ctx.state["refinement_count"] = refinement_count + 1

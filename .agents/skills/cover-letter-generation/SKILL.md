@@ -25,7 +25,7 @@ allowed-tools: ""
    - **Paragraph 1**: Lead with the company's product/mission and candidate interest. Explain *why* you are interested in their specific engineering challenges. Do NOT say "I am writing to apply..." or "I am passionate about...".
    - **Paragraph 2**: Cite specific technical evidence by name (e.g. Roadrunner project) and highlight concrete technologies and scale challenges.
    - **Paragraph 3**: Directly address any domain or skill gaps (e.g. lack of fintech background) honestly and reframe it (e.g., that distributed systems reliability is domain-agnostic).
-2. Conclude with candidate contact information and links (GitHub, email, etc.).
+2. Conclude with candidate contact information and full links (GitHub:, Email:, LinkedIn:, etc.).
 3. Count the word count. Provide a short metadata footer below the draft showing:
    - Word count (aim for 200-300 words).
    - Evidence audit (e.g. "Go gap addressed", "Roadrunner cited").

@@ -11,7 +11,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import logging
 import os
+
+local_logger = logging.getLogger(__name__)
 
 import google.auth
 from fastapi import FastAPI
@@ -60,7 +63,12 @@ def collect_feedback(feedback: Feedback) -> dict[str, str]:
     Returns:
         Success message
     """
-    logger.log_struct(feedback.model_dump(), severity="INFO")
+    try:
+        logger.log_struct(feedback.model_dump(), severity="INFO")
+    except Exception as e:
+        local_logger.info(
+            f"Local feedback logging fallback: {feedback.model_dump()} (GCP Log failed: {e})"
+        )
     return {"status": "success"}
 
 
