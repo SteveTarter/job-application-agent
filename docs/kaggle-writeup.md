@@ -8,7 +8,7 @@
 
 ## Subtitle
 
-From job posting text to evidence-backed cover letter PDF in seconds, using ADK 2.0 Workflows, multimodal PDF processing, and a five-dimension fit scorer.
+From job posts to evidence-backed cover letters in seconds using ADK 2.0 Workflows, multimodal PDF parsing, and a 5-dimension fit scorer.
 
 ---
 

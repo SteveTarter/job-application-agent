@@ -12,11 +12,11 @@
 
 ## Section 1: Problem Statement (0:00 - 0:45)
 
-[SCREEN: Slide or plain text — "The problem with job searching"]  
+[SCREEN: Slide or plain text — "The problem with job searching"]
 
-"Searching for a senior engineering role means doing real research before writing a single word. You need to understand what the company actually builds, whether your background maps to their requirements, which of your projects is most relevant as evidence, and how to frame any gaps honestly.  
+"Writing a cover letter for a senior engineering role means doing real research before writing a single word. You need to understand what the company actually builds, whether your background maps to their requirements, which of your projects is most relevant as evidence, and how to frame any gaps honestly.
 
-Most AI tools skip all of this. They produce fluent text that could have been written for any candidate applying to any job. The output sounds good and says nothing specific.  
+It's difficult if not impossible to do all of this using prompts alone. They produce fluent text that could have been written for any candidate applying to any job. The output sounds good and says nothing specific.
 
 The fix isn't better writing — it's better reasoning before writing. And that's exactly what an ADK Workflow pipeline can do."
 
@@ -24,47 +24,59 @@ The fix isn't better writing — it's better reasoning before writing. And that'
 
 ## Section 2: Why Agents & Workflows (0:45 – 1:30)
 
-[SCREEN: Architecture diagram showing AgentState and the Workflow Nodes]  
+[SCREEN: Architecture diagram showing AgentState and the Workflow Nodes]
 
-"I built JobAgent using Google ADK 2.0. The pipeline centers on a directed Workflow graph that manages a strict agent state.  
+"I built JobApplicationAgent using Google ADK 2.0. The pipeline centers on a directed Workflow graph that manages a strict agent state.
 
-The state flows through specific nodes: Candidate Setup, Job Analysis, and Letter Generation. The setup node uses Gemini's multimodal API to read your resume PDF directly. The job analyzer turns a posting URL into structured data and uses Google Search Grounding to research the company. The fit scorer assesses your candidacy across five dimensions to generate a strategy. And the cover letter node uses that strategy to write something actually tailored to you."
+The state flows through specific, skill-aware nodes: Setup Candidate, Analyze Job, and Generate Cover Letter. The setup node uses Gemini's multimodal API to read your resume PDF directly. The job analyzer turns a posting URL into structured data and uses Google Search Grounding to research the company. The fit scorer assesses your candidacy across five dimensions to generate a strategy. And the cover letter node uses that strategy to write something actually tailored to you.
+
+The state is shared between the nodes in the AgentState defined as a Pydantic model"
 
 ---
 
 ## Section 3: Antigravity & ADK (1:30 – 2:00)
 
-[SCREEN: IDE with app/agent.py and app/models.py Pydantic models visible]  
+[SCREEN: IDE with app/agent.py, app/models.py, .agents/skills/extract-resume/SKILLS.md visible]
 
-"I built this using ADK. Here you can see the Workflow definition and its routing logic. Notice how we use strict Pydantic schemas for the data contracts. When a node finishes an LLM call, it returns a strongly typed, validated model back to the agent's AgentState memory, preventing LLM hallucinations.  
+"I built this using ADK. Here you can see the Workflow definition and its routing logic. Notice how we use strict Pydantic schemas for the data contracts. When a node finishes an LLM call, it returns a strongly typed, validated model back to the agent's AgentState memory, preventing LLM hallucinations.
 
-By separating the workflow into distinct nodes, we can deterministically route the user using explicit phrases like 'job postings' or 'update profile'."  
+By separating the workflow into distinct nodes, we can deterministically route the user using explicit phrases like 'job postings' or 'update profile'.
+
+Agent skills used by the agent nodes are defined in plain language markdown files, similar to prompts, but very focused on getting a task done.  This skill runs an included python script to retrieve a list of GitHub repos for the user."
 
 ---
 
 ## Section 4: Live Demo — Single Job (2:00 – 3:30)
 
-[SCREEN: Terminal running 'docker compose up' then transitioning to the React web UI]  
+[SCREEN: Terminal running 'docker compose up' then transitioning to the React web UI]
 
-"Let me show it running. The entire application—both the Python ADK backend and Next.js frontend—spins up in a single command using Docker Compose. Once it's ready, we open the web interface in the browser. First, the agent asks for my resume. I'll upload a PDF.  
+"Let me show it running. The entire application—both the Python ADK backend and Next.js frontend—spins up in a single command using Docker Compose. Once it's ready, the web interface is available in the browser. To speed things along, I've already loaded my resume.  Here's the PDF."
 
-[SCREEN: Upload PDF in web UI]  
+[SCRREN: Show Resume in PDF Veiwer for a few seconds]
 
-"The setup node uses pypdf to extract my GitHub links from the file's annotations, then passes the binary to Gemini to build a candidate profile. Now, I'll paste in a job posting for a Backend role."  
+[SCREEN: Show 'Profile' in web UI]
 
-[SCREEN: Paste job posting URL or text]  
+"The setup node used pypdf to extract my GitHub links from the file's annotations, then passed the binary to Gemini to build a candidate profile along with the other details extracted from the resume. Additional items, like new certifications, can be added at this point.
 
-"The Analyze Job node fetches the posting. If the company is unknown, it triggers a live Google Search Grounding fallback to grab recent news and context.  
+Now, I'll paste in a job posting for a Senior Software Developer role."
 
-[SCREEN: Fit score output with dimension breakdown]  
+[SCREEN: Paste job posting URL or text]
 
-Now I see the fit score. Technical skills scored 88, experience level 85, seniority 90. Overall score: 82, which the system labels a Strong match. The scorer also generated a strategic gap narrative.  
+"The Analyze Job node fetches the posting. If the company is unknown, it triggers a live Google Search Grounding fallback to grab recent news and context.
 
-[SCREEN: Cover letter appearing]  
+[SCREEN: Fit score output with dimension breakdown]
 
-The Generate Cover Letter node takes over. Notice the opening — it connects my background directly to what this company builds. It even outputs an evidence audit, counting the words and noting which projects it cited.  
+"Now I see the fit score. Technical skills scored 88, experience level 85, seniority 90. Overall score: 82, which the system labels a Strong match. The scorer also generated a strategic gap narrative. You can update items."
 
-[SCREEN: Refinement turn]  
+[SCREEN: User types: 'I have used Angular.']
+
+"The fit score is updated to reflect the new skill.  Let's generate a cover letter."
+
+[SCREEN: User types 'cover letter'.  Cover letter appears]
+
+The Generate Cover Letter node takes over. Notice the opening — it connects my background directly to what this company builds. It even outputs an evidence audit, counting the words and noting which projects it cited.
+
+[SCREEN: Refinement turn]
 
 Now watch what happens when I say 'make the tone less formal'. The workflow loops back into the letter node, incrementing the draft count and editing the text while preserving the evidence."
 
@@ -72,17 +84,17 @@ Now watch what happens when I say 'make the tone less formal'. The workflow loop
 
 ## Section 5: Batching & Session Isolation (3:30 – 4:15)
 
-[SCREEN: Workflow handling multiple jobs]  
+[SCREEN: Workflow handling multiple jobs]
 
-"When I want to look at another job, I just type 'job postings'. The workflow routes me back to the analyzer.  
+"When I want to look at another job, I just type 'job postings'. The workflow routes me back to the analyzer.
 
-Behind the scenes, the agent's state tracks a job_index. This isolates each job session to prevent cache collisions in the UI. I can evaluate multiple jobs against the same stored candidate profile, producing genuinely different strategic angles and letters without having to re-upload my resume."  
+Behind the scenes, the agent's state tracks a job_index. This isolates each job session to prevent cache collisions in the UI. I can evaluate multiple jobs against the same stored candidate profile, producing genuinely different strategic angles and letters without having to re-upload my resume."
 
 ---
 
 ## Section 6: Close (4:15 – 4:30)
 
-[SCREEN: GitHub repo README]  
+[SCREEN: GitHub repo README]
 
 "The full code is at https://github.com/SteveTarter/job-application-agent. The README covers local setup, the multi-agent architecture, and how to run the entire stack with Docker Compose.
 
