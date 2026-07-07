@@ -224,10 +224,17 @@ async def analyze_job(ctx: Context, node_input: Any):
             f"{match_result.gap_narrative}"
         )
 
-        confirm_letter_msg = "Ready to generate your cover letter? Type 'cover letter' to proceed, type 'update profile' to update your profile, or describe any adjustments you'd like to make to this fit report:"
+        confirm_letter_msg = (
+            "Ready to generate your cover letter? Type 'cover letter' to proceed, "
+            "type 'update profile' to update your profile, type 'job postings' to analyze a new job, "
+            "or describe any adjustments you'd like to make to this fit report:"
+        )
         yield Event(
             content=types.Content(
-                role="model", parts=[types.Part.from_text(text=confirm_letter_msg)]
+                role="model",
+                parts=[
+                    types.Part.from_text(text=f"{dashboard}\n\n{confirm_letter_msg}")
+                ],
             )
         )
         yield RequestInput(
@@ -250,6 +257,7 @@ async def analyze_job(ctx: Context, node_input: Any):
         profile.confirmed = False
         ctx.state["profile"] = profile.model_dump()
         ctx.state["cover_letter"] = ""
+        ctx.state["current_job"] = None
         ctx.state["draft_count"] = 1
         
         # Increment profile_confirm_count to ensure setup_candidate uses a fresh, uncached interrupt ID

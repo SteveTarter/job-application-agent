@@ -847,7 +847,7 @@ export default function JobApplicationAgentDashboard() {
                         : activeInterrupt?.id.startsWith("profile_confirm")
                         ? "Type 'job postings' to proceed, or describe corrections..."
                         : activeInterrupt?.id.startsWith("letter_confirm")
-                        ? "Type 'cover letter' to generate, 'update profile' to edit, or enter corrections..."
+                        ? "Type 'cover letter' to generate, 'update profile' to edit, 'job postings' to analyze a new job, or enter corrections..."
                         : activeInterrupt?.id.startsWith("refinement_input")
                         ? "Type refinement edits, 'update profile' to edit profile, or 'job postings' to analyze a new job..."
                         : "Type your message..."
@@ -1197,23 +1197,33 @@ export default function JobApplicationAgentDashboard() {
                             <CardHeader className="pb-2">
                               <CardTitle className="text-sm font-bold text-zinc-300">5-Dimension Breakdown</CardTitle>
                             </CardHeader>
-                            <CardContent className="h-[280px]">
+                            <CardContent className="flex flex-col justify-between h-[340px] pb-4">
                               {mounted && (
-                                <ResponsiveContainer width="100%" height="100%">
-                                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={getRadarChartData()}>
-                                    <PolarGrid stroke="#27272a" />
-                                    <PolarAngleAxis dataKey="subject" tick={{ fill: "#a1a1aa", fontSize: 10 }} />
-                                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "#52525b", fontSize: 8 }} />
-                                    <Radar
-                                      name="Fit Score"
-                                      dataKey="score"
-                                      stroke="#6366f1"
-                                      fill="#6366f1"
-                                      fillOpacity={0.3}
-                                    />
-                                  </RadarChart>
-                                </ResponsiveContainer>
+                                <div className="h-[240px] w-full">
+                                  <ResponsiveContainer width="100%" height="100%">
+                                    <RadarChart cx="50%" cy="50%" outerRadius="75%" data={getRadarChartData()}>
+                                      <PolarGrid stroke="#27272a" />
+                                      <PolarAngleAxis dataKey="subject" tick={{ fill: "#a1a1aa", fontSize: 10 }} />
+                                      <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: "#52525b", fontSize: 8 }} />
+                                      <Radar
+                                        name="Fit Score"
+                                        dataKey="score"
+                                        stroke="#6366f1"
+                                        fill="#6366f1"
+                                        fillOpacity={0.3}
+                                      />
+                                    </RadarChart>
+                                  </ResponsiveContainer>
+                                </div>
                               )}
+                              <div className="grid grid-cols-5 gap-1 pt-3 border-t border-zinc-800 text-center">
+                                {getRadarChartData().map((d) => (
+                                  <div key={d.subject}>
+                                    <div className="text-[9px] text-zinc-400 font-medium truncate uppercase tracking-wider">{d.subject}</div>
+                                    <div className="text-sm font-bold text-zinc-100 mt-0.5">{d.score}%</div>
+                                  </div>
+                                ))}
+                              </div>
                             </CardContent>
                           </Card>
                         </div>

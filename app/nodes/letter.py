@@ -204,6 +204,7 @@ async def generate_cover_letter(ctx: Context, node_input: Any):
         profile.confirmed = False
         ctx.state["profile"] = profile.model_dump()
         ctx.state["cover_letter"] = ""
+        ctx.state["current_job"] = None
         ctx.state["draft_count"] = 1
         
         # Increment profile_confirm_count to ensure setup_candidate uses a fresh, uncached interrupt ID
